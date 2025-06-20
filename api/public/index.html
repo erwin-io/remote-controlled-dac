@@ -9,6 +9,27 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs/dayjs.min.js"></script>
+        <!-- Firebase App (core) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <!-- Firebase Realtime Database -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script>
+        // Replace with your own Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvnNNwhPgfV-iemaRRIfrFLcBoVTrvcXk",
+            authDomain: "greenhousemonitoring-cb1d1.firebaseapp.",
+            databaseURL: "https://greenhousemonitoring-cb1d1-default-rtdb.firebaseio.com",
+            projectId: "greenhousemonitoring-cb1d1",
+            storageBucket: "greenhousemonitoring-cb1d1.firebasestorage.app",
+            messagingSenderId: "1088699489075",
+            appId: "1:1088699489075:web:301719afcb12d80f35bc46"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+    </script>
+
     <style>
         .card-hover:hover {
             transform: translateY(-5px);
@@ -468,10 +489,14 @@
             return `rgba(${r}, ${g}, ${b}, ${opacity})`;
         }
         
+        let spikesChartInstance = null;
         function loadSpikes(x, y) {
             // CO2 Spikes Chart (Area Chart)
             const spikesCtx = document.getElementById('spikesChart').getContext('2d');
-            const spikesChart = new Chart(spikesCtx, {
+            if (spikesChartInstance) {
+                spikesChartInstance.destroy();
+            }
+            spikesChartInstance  = new Chart(spikesCtx, {
                 type: 'line',
                 data: {
                     labels: x,
@@ -513,7 +538,8 @@
             });
 
         }
-
+        
+        let locationChartInstance = null;
         function loadLocationChart(data) {
             const locationCtx = document.getElementById('locationChart').getContext('2d');
             const labels = data.x;
@@ -523,7 +549,10 @@
             const backgroundColors = labels.map(() => getRandomColor(0.7));
             const borderColors = backgroundColors.map(bg => bg.replace(/0\.7\)/, '1)'));
 
-            new Chart(locationCtx, {
+            if (locationChartInstance) {
+                locationChartInstance.destroy();
+            }
+            locationChartInstance = new Chart(locationCtx, {
                 type: 'bar',
                 data: {
                     labels,
@@ -558,7 +587,7 @@
                 }
             });
         }
-
+        let historicalChartInstance = null;
 
         function loadHistoricalChart(data) {
             // Trend Line Chart
@@ -566,7 +595,10 @@
             const values = data.y;
             const trendCtx = document.getElementById('trendChart').getContext('2d');
             const minValue = Math.min(...values);
-            const trendChart = new Chart(trendCtx, {
+            if (historicalChartInstance) {
+                historicalChartInstance.destroy();
+            }
+            historicalChartInstance = new Chart(trendCtx, {
                 type: 'line',
                 data: {
                     labels: labels,
@@ -613,19 +645,20 @@
         }
         
 
-        async function callAPIs(requestedKeys = []) {
+        async function callAPIs(requestedKeys = [], loading = true) {
             try {
 
-                document.querySelector('.dashboard-sum').classList.add('is-loading');
-                document.querySelectorAll('.chart-has-loader').forEach(chart => {
-                    chart.classList.add('is-loading');
-                });
-                document.querySelectorAll('.mode-filter').forEach(mode => {
-                    mode.querySelectorAll('button').forEach(button => {
-                        button.disabled = true;
+                if(loading) {
+                    document.querySelector('.dashboard-sum').classList.add('is-loading');
+                    document.querySelectorAll('.chart-has-loader').forEach(chart => {
+                        chart.classList.add('is-loading');
                     });
-                });
-
+                    document.querySelectorAll('.mode-filter').forEach(mode => {
+                        mode.querySelectorAll('button').forEach(button => {
+                            button.disabled = true;
+                        });
+                    });
+                }
                 const responses = await Promise.all(
                     requestedKeys.map(key => apiMap[key]().then(res => ({ key, data: res.data })))
                 );
@@ -655,7 +688,6 @@
                         button.disabled = false;
                     });
                 });
-
                 if(result.summary?.current) {
                     const current = result.summary?.current;
                     if(!isNaN(Number(current?.change)) && Number(current?.change ?? -1) >= 0) {
@@ -682,7 +714,7 @@
                     const count = result.summary?.alerts?.top5?.length || 0;
                     document.querySelector('.dashboard-sum .warnings').innerHTML = `${count}&nbsp;<span class="text-lg text-gray-500">warnings</span></h2>`;
                     if(criticalRegion && criticalRegion?.spike) {
-                        document.querySelector('.dashboard-sum .critical-region').innerHTML += `<span class="text-yellow-500 font-medium">1 critical</span>&nbsp;in ${criticalRegion?.city}`;
+                        document.querySelector('.dashboard-sum .critical-region').innerHTML = `<span class="text-yellow-500 font-medium">1 critical</span>&nbsp;in ${criticalRegion?.city}`;
                     }
                 }
 
@@ -703,8 +735,24 @@
             }
         }
 
-        callAPIs(["summary", "spikesDay", "spikesWeek", "spikesMonth", "locationCurrent", "locationAvg", "locationPeak", "historicalYear1", "historicalYear5", "historicalYear10"]);
+        callAPIs(["summary", "spikesDay", "locationCurrent", "historicalYear1"]);
 
+        const readingsRef = db.ref("log-readings");
+
+        // Realtime listener that checks for the latest item on every change
+        readingsRef.on("value", (snapshot) => {
+            const all = snapshot.val();
+            if (!all) return;
+
+            // Get latest item by timestamp (highest key)
+            const latestKey = Object.keys(all).sort().reverse()[0];
+            const latestReading = all[latestKey];
+
+            console.log("📡 Realtime Latest Reading:", latestReading);
+
+            // Call only the APIs that reflect change
+            callAPIs(["summary", "spikesDay", "locationCurrent", "historicalYear1"], false);
+        });
 
     </script>
 </body>
