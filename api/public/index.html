@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,19 +14,85 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
+
         .animate-pulse {
             animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
+
+        .skeleton-wave {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: wave 1.5s linear infinite;
+        }
+
+        .dashboard-sum.is-loading .summary {
+            display: none!important;
+        }
+
+        .dashboard-sum .summary .icons.hidden{
+            display: none!important;
+        }
+        
+        .dashboard-sum .loading-dashboard-placholder {
+            display: none;
+        }
+
+        .dashboard-sum.is-loading .loading-dashboard-placholder {
+            display: block;
+            min-height: 100px!important;
+        }
+
+        .dashboard-sum.is-loading .icons {
+            display: none
+        }
+
+        .chart-has-loader {
+            min-height: 300px;
+        }
+
+        .chart-has-loader.is-loading .chart-wrapper {
+            display: none !important;
+        }
+
+        .chart-has-loader .loading-chart-placholder {
+            position: relative;
+            display: none;
+            box-sizing: border-box;
+            height: 200px;
+        }
+
+        .chart-has-loader.is-loading .loading-chart-placholder {
+            display: block !important;
+        }
+
+        .mode-filter button:disabled {
+            cursor: not-allowed;
+        }
+
         @keyframes pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 opacity: 1;
             }
+
             50% {
                 opacity: 0.5;
             }
         }
+
+        @keyframes wave {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
     </style>
 </head>
+
 <body class="bg-gray-50">
     <div class="min-h-screen">
         <!-- Header -->
@@ -33,14 +100,17 @@
             <div class="container mx-auto px-4 py-6">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
                         <h1 class="text-2xl font-bold">Greenhouse Gas Monitoring</h1>
                     </div>
                     <div class="flex items-center space-x-4">
                         <div class="relative">
-                            <input type="text" placeholder="Search..." class="bg-emerald-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 placeholder-emerald-200">
+                            <input type="text" placeholder="Search..."
+                                class="bg-emerald-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 placeholder-emerald-200">
                         </div>
                         <div class="h-10 w-10 rounded-full bg-emerald-600 flex items-center justify-center">
                             <span class="text-white font-semibold">ER</span>
@@ -53,134 +123,237 @@
         <!-- Main Content -->
         <main class="container mx-auto px-4 py-8">
             <!-- Dashboard Overview -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-8 dashboard-sum is-loading">
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300 summary">
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-gray-500 font-medium">Current CO2 Level</p>
-                            <h2 class="text-3xl font-bold text-emerald-600 mt-2">412.5 <span class="text-lg text-gray-500">ppm</span></h2>
+                            <h2 class="text-3xl font-bold text-emerald-600 mt-2 current-value">0<span
+                                    class="text-lg text-gray-500">ppm</span></h2>
                         </div>
-                        <div class="bg-emerald-100 p-3 rounded-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        <div class="bg-emerald-100 p-3 rounded-lg icons trend-up">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                        </div>
+                        <div class="bg-emerald-100 p-3 rounded-lg icons trend-down">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
                             </svg>
                         </div>
                     </div>
                     <div class="mt-4">
                         <p class="text-sm text-gray-500 flex items-center">
-                            <span class="text-emerald-500 font-medium">+2.1%</span> from last month
+                            <span class="text-emerald-500 font-medium current-change">0%</span> from last month
                         </p>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300">
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300 summary">
                     <div class="flex justify-between items-start">
                         <div>
                             <p class="text-gray-500 font-medium">Average</p>
-                            <h2 class="text-3xl font-bold text-blue-600 mt-2">415.2 <span class="text-lg text-gray-500">ppm</span></h2>
+                            <h2 class="text-3xl font-bold text-blue-600 mt-2 monthly-average">415.2 <span
+                                    class="text-lg text-gray-500">ppm</span></h2>
                         </div>
                         <div class="bg-blue-100 p-3 rounded-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300 summary">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500 font-medium">Alert Status</p>
+                            <h2 class="text-3xl font-bold text-yellow-600 mt-2 warnings">0<span
+                                    class="text-lg text-gray-500">&nbsp;warnings</span></h2>
+                        </div>
+                        <div class="bg-yellow-100 p-3 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
                         </div>
                     </div>
                     <div class="mt-4">
-                        <p class="text-sm text-gray-500 flex items-center">
-                            <span class="text-blue-500 font-medium">+1.8%</span> from last month
+                        <p class="text-sm text-gray-500 flex items-center critical-region">
                         </p>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-gray-500 font-medium">Alert Status</p>
-                            <h2 class="text-3xl font-bold text-yellow-600 mt-2">3 <span class="text-lg text-gray-500">warnings</span></h2>
-                        </div>
-                        <div class="bg-yellow-100 p-3 rounded-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <p class="text-sm text-gray-500 flex items-center">
-                            <span class="text-yellow-500 font-medium">1 critical</span> in North Region
-                        </p>
-                    </div>
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300 loading-dashboard-placholder">
+                    <div class="h-full w-full skeleton-wave rounded-t"></div>
                 </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300 loading-dashboard-placholder">
+                    <div class="h-full w-full skeleton-wave rounded-t"></div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300 loading-dashboard-placholder">
+                    <div class="h-full w-full skeleton-wave rounded-t"></div>
+                </div>
+
             </div>
 
             <!-- Charts Section -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 <!-- CO2 Spikes Chart -->
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300">
+                <div
+                    class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300 chart-has-loader is-loading">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-semibold text-gray-800">CO2 Concentration Spikes</h2>
-                        <div class="flex space-x-2">
-                            <button class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium">Day</button>
-                            <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">Week</button>
-                            <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">Month</button>
+                        <div class="flex space-x-2 mode-filter">
+                            <button
+                                class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium">Day</button>
+                            <button
+                                class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium button-disabled">Week</button>
+                            <button 
+                                class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium button-disabled">Month</button>
                         </div>
                     </div>
-                    <div class="h-64">
+                    <div class="h-64 chart-wrapper">
                         <canvas id="spikesChart"></canvas>
+                    </div>
+
+                    <!-- Skeleton Loading State (shown by default) -->
+                    <div class="loading-chart-placholder w-full h-full">
+                        <div class="absolute inset-0 flex flex-col space-y-4">
+                            <!-- Chart area with wave effect -->
+                            <div class="flex-1 flex items-end space-x-1">
+                                <div class="h-2/3 w-full skeleton-wave rounded-t"></div>
+                                <div class="h-1/4 w-full skeleton-wave rounded-t"></div>
+                                <div class="h-full w-full skeleton-wave rounded-t"></div>
+                                <div class="h-1/2 w-full skeleton-wave rounded-t"></div>
+                                <div class="h-3/4 w-full skeleton-wave rounded-t"></div>
+                                <div class="h-full w-full skeleton-wave rounded-t"></div>
+                                <div class="h-1/2 w-full skeleton-wave rounded-t"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Location Bar Chart -->
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300">
+                <div
+                    class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300 chart-has-loader is-loading">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-semibold text-gray-800">CO2 Levels by Location</h2>
-                        <div class="flex space-x-2">
-                            <button class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium">Current</button>
-                            <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">Avg</button>
-                            <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">Peak</button>
+                        <div class="flex space-x-2 mode-filter">
+                            <button
+                                class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium">Current</button>
+                            <button
+                                class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium button-disabled">Avg</button>
+                            <button
+                                class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium button-disabled">Peak</button>
                         </div>
                     </div>
-                    <div class="h-64">
+                    <div class="h-64 chart-wrapper">
                         <canvas id="locationChart"></canvas>
+                    </div>
+
+                    <!-- Skeleton Loading State (shown by default) -->
+                    <div class="loading-chart-placholder w-full h-full">
+                        <div class="absolute inset-0 flex flex-col space-y-4">
+                            <!-- Chart area with wave effect -->
+                            <div class="flex-1 flex items-end space-x-1">
+                                <div class="h-2/3 w-full skeleton-wave rounded-t"></div>
+                                <div class="h-1/4 w-full skeleton-wave rounded-t"></div>
+                                <div class="h-full w-full skeleton-wave rounded-t"></div>
+                                <div class="h-1/2 w-full skeleton-wave rounded-t"></div>
+                                <div class="h-3/4 w-full skeleton-wave rounded-t"></div>
+                                <div class="h-full w-full skeleton-wave rounded-t"></div>
+                                <div class="h-1/2 w-full skeleton-wave rounded-t"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Line Chart Section -->
-            <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300 mb-8">
+            <div
+                class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300 mb-8 chart-has-loader is-loading">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-semibold text-gray-800">Historical CO2 Trends</h2>
-                    <div class="flex space-x-2">
-                        <button class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium">1 Year</button>
-                        <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">5 Years</button>
-                        <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">10 Years</button>
+                    <div class="flex space-x-2 mode-filter">
+                        <button class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium">1
+                            Year</button>
+                        <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">5
+                            Years</button>
+                        <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">10
+                            Years</button>
                     </div>
                 </div>
-                <div class="h-80">
+                <div class="h-80 chart-wrapper">
                     <canvas id="trendChart"></canvas>
+                </div>
+
+                <!-- Skeleton Loading State (shown by default) -->
+                <div class="loading-chart-placholder w-full h-full">
+                    <div class="absolute inset-0 flex flex-col space-y-4">
+                        <!-- Chart area with wave effect -->
+                        <div class="flex-1 flex items-end space-x-1">
+                            <div class="h-2/3 w-full skeleton-wave rounded-t"></div>
+                            <div class="h-1/4 w-full skeleton-wave rounded-t"></div>
+                            <div class="h-full w-full skeleton-wave rounded-t"></div>
+                            <div class="h-1/2 w-full skeleton-wave rounded-t"></div>
+                            <div class="h-3/4 w-full skeleton-wave rounded-t"></div>
+                            <div class="h-full w-full skeleton-wave rounded-t"></div>
+                            <div class="h-1/2 w-full skeleton-wave rounded-t"></div>
+                            <div class="h-2/3 w-full skeleton-wave rounded-t"></div>
+                            <div class="h-1/4 w-full skeleton-wave rounded-t"></div>
+                            <div class="h-full w-full skeleton-wave rounded-t"></div>
+                            <div class="h-1/2 w-full skeleton-wave rounded-t"></div>
+                            <div class="h-3/4 w-full skeleton-wave rounded-t"></div>
+                            <div class="h-full w-full skeleton-wave rounded-t"></div>
+                            <div class="h-1/2 w-full skeleton-wave rounded-t"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Recent Alerts -->
-            <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300">
+            <!-- <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300">
                 <h2 class="text-xl font-semibold text-gray-800 mb-6">Recent Alerts</h2>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CO2 Level</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Location</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    CO2 Level</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Time</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        <div
+                                            class="flex-shrink-0 h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
                                             </svg>
                                         </div>
                                         <div class="ml-4">
@@ -193,7 +366,8 @@
                                     <div class="text-sm text-gray-900">487 ppm</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Critical</span>
+                                    <span
+                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Critical</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     12 minutes ago
@@ -205,13 +379,17 @@
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        <div
+                                            class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                             </svg>
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">Central Business District</div>
+                                            <div class="text-sm font-medium text-gray-900">Central Business District
+                                            </div>
                                             <div class="text-sm text-gray-500">Sensor #CBD-12</div>
                                         </div>
                                     </div>
@@ -220,7 +398,8 @@
                                     <div class="text-sm text-gray-900">432 ppm</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Warning</span>
+                                    <span
+                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Warning</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     1 hour ago
@@ -232,9 +411,12 @@
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        <div
+                                            class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                             </svg>
                                         </div>
                                         <div class="ml-4">
@@ -247,7 +429,8 @@
                                     <div class="text-sm text-gray-900">428 ppm</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Warning</span>
+                                    <span
+                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Warning</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     3 hours ago
@@ -259,175 +442,271 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div> -->
         </main>
     </div>
 
     <script>
-        // CO2 Spikes Chart (Area Chart)
-        const spikesCtx = document.getElementById('spikesChart').getContext('2d');
-        const spikesChart = new Chart(spikesCtx, {
-            type: 'line',
-            data: {
-                labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
-                datasets: [{
-                    label: 'CO2 Concentration (ppm)',
-                    data: [410, 415, 420, 430, 425, 418, 412],
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    borderColor: 'rgba(16, 185, 129, 1)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        min: 400,
-                        max: 450,
-                        ticks: {
-                            callback: function(value) {
-                                return value + ' ppm';
-                            }
-                        }
-                    }
-                }
-            }
-        });
 
-        // Location Bar Chart
-        const locationCtx = document.getElementById('locationChart').getContext('2d');
-        const locationChart = new Chart(locationCtx, {
-            type: 'bar',
-            data: {
-                labels: ['North', 'South', 'East', 'West', 'Central', 'Suburb'],
-                datasets: [{
-                    label: 'CO2 Levels',
-                    data: [487, 412, 428, 405, 432, 398],
-                    backgroundColor: [
-                        'rgba(239, 68, 68, 0.7)',
-                        'rgba(16, 185, 129, 0.7)',
-                        'rgba(245, 158, 11, 0.7)',
-                        'rgba(59, 130, 246, 0.7)',
-                        'rgba(245, 158, 11, 0.7)',
-                        'rgba(16, 185, 129, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgba(239, 68, 68, 1)',
-                        'rgba(16, 185, 129, 1)',
-                        'rgba(245, 158, 11, 1)',
-                        'rgba(59, 130, 246, 1)',
-                        'rgba(245, 158, 11, 1)',
-                        'rgba(16, 185, 129, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.parsed.y + ' ppm';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        min: 350,
-                        max: 500,
-                        ticks: {
-                            callback: function(value) {
-                                return value + ' ppm';
-                            }
-                        }
-                    }
-                }
-            }
-        });
+        const apiMap = {
+            summary: () => axios.get("/api/dashboard/summary"),
+            spikesDay: () => axios.get("/api/dashboard/spikes?mode=day"),
+            spikesWeek: () => axios.get("/api/dashboard/spikes?mode=week"),
+            spikesMonth: () => axios.get("/api/dashboard/spikes?mode=month"),
+            locationCurrent: () => axios.get("/api/dashboard/location-data?mode=current"),
+            locationAvg: () => axios.get("/api/dashboard/location-data?mode=avg"),
+            locationPeak: () => axios.get("/api/dashboard/location-data?mode=peak"),
+            historicalYear1: () => axios.get("/api/dashboard/historical?years=1"),
+            historicalYear5: () => axios.get("/api/dashboard/historical?years=5"),
+            historicalYear10: () => axios.get("/api/dashboard/historical?years=10"),
+        };
 
-        // Trend Line Chart
-        const trendCtx = document.getElementById('trendChart').getContext('2d');
-        const trendChart = new Chart(trendCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                datasets: [
-                    {
-                        label: '2023',
-                        data: [415, 416, 417, 418, 419, 420, 421, 422, 421, 420, 419, 418],
+        function getRandomColor(opacity = 0.7) {
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        }
+        
+        function loadSpikes(x, y) {
+            // CO2 Spikes Chart (Area Chart)
+            const spikesCtx = document.getElementById('spikesChart').getContext('2d');
+            const spikesChart = new Chart(spikesCtx, {
+                type: 'line',
+                data: {
+                    labels: x,
+                    datasets: [{
+                        label: 'CO2 Concentration (ppm)',
+                        data: y,
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
                         borderColor: 'rgba(16, 185, 129, 1)',
                         borderWidth: 2,
-                        tension: 0.3
-                    },
-                    {
-                        label: '2022',
-                        data: [412, 413, 414, 415, 416, 417, 418, 419, 418, 417, 416, 415],
-                        borderColor: 'rgba(59, 130, 246, 1)',
-                        borderWidth: 2,
-                        tension: 0.3,
-                        borderDash: [5, 5]
-                    },
-                    {
-                        label: '2021',
-                        data: [410, 411, 412, 413, 414, 415, 416, 417, 416, 415, 414, 413],
-                        borderColor: 'rgba(139, 92, 246, 1)',
-                        borderWidth: 2,
-                        tension: 0.3,
-                        borderDash: [5, 5]
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ' + context.parsed.y + ' ppm';
-                            }
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
                         }
                     },
-                    legend: {
-                        position: 'top',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        min: 400,
-                        max: 425,
-                        ticks: {
-                            callback: function(value) {
-                                return value + ' ppm';
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 350,
+                            max: 2500,
+                            ticks: {
+                                callback: function (value) {
+                                    return value + ' ppm';
+                                }
                             }
                         }
                     }
                 }
+            });
+
+        }
+
+        function loadLocationChart(data) {
+            const locationCtx = document.getElementById('locationChart').getContext('2d');
+            const labels = data.x;
+            const values = data.y;
+            const minValue = Math.min(...values);
+
+            const backgroundColors = labels.map(() => getRandomColor(0.7));
+            const borderColors = backgroundColors.map(bg => bg.replace(/0\.7\)/, '1)'));
+
+            new Chart(locationCtx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'CO2 Levels',
+                        data: values,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: context => context.parsed.y + ' ppm'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: minValue > 500 ? minValue - 100 : 350, // ✅ minimum value of Y-axis set to 350
+                            ticks: {
+                                callback: value => value + ' ppm'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        function loadHistoricalChart(data) {
+            // Trend Line Chart
+            const labels = data.x;
+            const values = data.y;
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            const minValue = Math.min(...values);
+            const trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '2025',
+                            data: values,
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            borderWidth: 2,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function (context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + ' ppm';
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: minValue > 500 ? minValue - 100 : 350, // ✅ minimum value of Y-axis set to 350
+                            ticks: {
+                                callback: function (value) {
+                                    return value + ' ppm';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+
+        async function callAPIs(requestedKeys = []) {
+            try {
+
+                document.querySelector('.dashboard-sum').classList.add('is-loading');
+                document.querySelectorAll('.chart-has-loader').forEach(chart => {
+                    chart.classList.add('is-loading');
+                });
+                document.querySelectorAll('.mode-filter').forEach(mode => {
+                    mode.querySelectorAll('button').forEach(button => {
+                        button.disabled = true;
+                    });
+                });
+
+                const responses = await Promise.all(
+                    requestedKeys.map(key => apiMap[key]().then(res => ({ key, data: res.data })))
+                );
+
+                const result = {};
+                for (const r of responses) {
+                    if (r.key.startsWith("spikes")) {
+                        result.spikes = result.spikes || {};
+                        result.spikes[r.key.replace("spikes", "").toLowerCase()] = r.data;
+                    } else if (r.key.startsWith("location")) {
+                        result.location = result.location || {};
+                        result.location[r.key.replace("location", "").toLowerCase()] = r.data;
+                    } else {
+                        result[r.key] = r.data;
+                    }
+                }
+
+                console.log("✅ Selected API calls successful", result);
+                // Update your chart UI or DOM here using `result`
+
+                document.querySelector('.dashboard-sum').classList.remove('is-loading');
+                document.querySelectorAll('.chart-has-loader').forEach(chart => {
+                    chart.classList.remove('is-loading');
+                });
+                document.querySelectorAll('.mode-filter').forEach(mode => {
+                    mode.querySelectorAll('button').forEach(button => {
+                        button.disabled = false;
+                    });
+                });
+
+                if(result.summary?.current) {
+                    const current = result.summary?.current;
+                    if(!isNaN(Number(current?.change)) && Number(current?.change ?? -1) >= 0) {
+                        document.querySelector('.dashboard-sum .current-change').innerText = (Number(current?.change) / 100).toFixed(2) + '%';
+                        document.querySelector('.dashboard-sum .icons.trend-up').classList.remove('hidden');
+                        document.querySelector('.dashboard-sum .icons.trend-down').classList.add('hidden');
+                    } else if(!isNaN(Number(current?.change)) && Number(current?.change ?? -1) < 0) {
+                        document.querySelector('.dashboard-sum .icons.trend-up').classList.add('hidden');
+                        document.querySelector('.dashboard-sum .icons.trend-down').classList.remove('hidden');
+                        document.querySelector('.dashboard-sum .current-change').innerText = (Number(current?.change) / 100).toFixed(2) + '%';
+                    }
+                    document.querySelector('.dashboard-sum .current-value').innerText = current?.value;
+                }
+
+
+                if(result.summary?.monthlyAverage) {
+                    const monthlyAverage = result.summary?.monthlyAverage;
+                    document.querySelector('.dashboard-sum .monthly-average').innerText = monthlyAverage?.value;
+                }
+
+
+                if(result.summary?.alerts) {
+                    const criticalRegion = result.summary?.alerts?.criticalRegion;
+                    const count = result.summary?.alerts?.top5?.length || 0;
+                    document.querySelector('.dashboard-sum .warnings').innerHTML = `${count}&nbsp;<span class="text-lg text-gray-500">warnings</span></h2>`;
+                    if(criticalRegion && criticalRegion?.spike) {
+                        document.querySelector('.dashboard-sum .critical-region').innerHTML += `<span class="text-yellow-500 font-medium">1 critical</span>&nbsp;in ${criticalRegion?.city}`;
+                    }
+                }
+
+                if(result?.spikes?.day) {
+                    loadSpikes(result?.spikes?.day?.x || [], result?.spikes?.day?.y || []);
+                }
+
+                if(result?.location?.current) loadLocationChart(result.location.current);
+                if(result?.historicalYear1) loadHistoricalChart(result?.historicalYear1);
+
+                
+                document.querySelectorAll('.mode-filter .button-disabled').forEach(button => {
+                    button.disabled = true;
+                });
+            } catch (err) {
+                console.error("❌ API call failed", err);
+                output.innerText = "Error: " + err.message;
             }
-        });
+        }
+
+        callAPIs(["summary", "spikesDay", "spikesWeek", "spikesMonth", "locationCurrent", "locationAvg", "locationPeak", "historicalYear1", "historicalYear5", "historicalYear10"]);
+
+
     </script>
 </body>
+
 </html>

@@ -154,28 +154,27 @@ app.post("/api/log-readings", async (req, res) => {
     const updates = {};
 
     const coordinates = [
-      { lng: "123.8854", lat: "10.3157" },
-      { lng: "123.9687", lat: "10.2970" },
-      { lng: "123.8426", lat: "10.3882" },
-      { lng: "123.6258", lat: "10.7760" },
-      { lng: "123.9944", lat: "10.2955" },
-      { lng: "123.9053", lat: "10.3280" },
-      { lng: "123.7844", lat: "9.6057" },
-      { lng: "123.5747", lat: "9.9843" },
-      { lng: "123.9645", lat: "10.2793" },
-      { lng: "123.8476", lat: "10.3431" },
-      { lng: "123.6256", lat: "11.2623" },
-      { lng: "123.9689", lat: "10.3353" },
-      { lng: "123.4500", lat: "10.0516" },
-      { lng: "123.9754", lat: "10.2942" },
-      { lng: "123.6102", lat: "10.3853" },
-      { lng: "123.9813", lat: "10.3526" },
-      { lng: "124.0300", lat: "10.6089" },
-      { lng: "123.5110", lat: "10.1321" },
-      { lng: "124.0347", lat: "11.0710" },
-      { lng: "123.9769", lat: "10.4021" },
+      { lng: "123.8854", lat: "10.3157", location: "Fuente Osmeña" },
+      { lng: "123.9687", lat: "10.2970", location: "Lapu-Lapu City" },
+      { lng: "123.8426", lat: "10.3882", location: "SM City Cebu" },
+      { lng: "123.6258", lat: "10.7760", location: "Bantayan Island" },
+      { lng: "123.9944", lat: "10.2955", location: "Magellan's Cross" },
+      { lng: "123.9053", lat: "10.3280", location: "Cebu Business Park" },
+      { lng: "123.7844", lat: "9.6057", location: "Oslob" },
+      { lng: "123.5747", lat: "9.9843", location: "Moalboal" },
+      { lng: "123.9645", lat: "10.2793", location: "MCIA" },
+      { lng: "123.8476", lat: "10.3431", location: "SM Seaside" },
+      { lng: "123.6256", lat: "11.2623", location: "Daanbantayan" },
+      { lng: "123.9689", lat: "10.3353", location: "Liloan" },
+      { lng: "123.4500", lat: "10.0516", location: "Badian" },
+      { lng: "123.9754", lat: "10.2942", location: "Fort San Pedro" },
+      { lng: "123.6102", lat: "10.3853", location: "Balamban" },
+      { lng: "123.9813", lat: "10.3526", location: "Consolacion" },
+      { lng: "124.0300", lat: "10.6089", location: "Danao City" },
+      { lng: "123.5110", lat: "10.1321", location: "Alegria" },
+      { lng: "124.0347", lat: "11.0710", location: "Bogo City" },
+      { lng: "123.9769", lat: "10.4021", location: "Compostela" },
     ];
-
     for (const r of readings) {
       const sensorTimestamp = r.timestamp;
       const random = coordinates[Math.floor(Math.random() * coordinates.length)];
@@ -184,6 +183,7 @@ app.post("/api/log-readings", async (req, res) => {
         timestamp: sensorTimestamp,
         lat: random.lat,
         lng: random.lng,
+        location: random.location,
         uploadtimestamp: timestamp || getNow()
       };
     }
@@ -213,20 +213,6 @@ function average(arr) {
   return arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : 0;
 }
 
-async function reverseGeocode(lat, lng) {
-  try {
-    const resp = await axios.get(REVERSE_GEOCODE_URL, {
-      params: { lat, lon: lng, format: "json" },
-      headers: { "User-Agent": "CO2-Dashboard/1.0" }
-    });
-    return resp.data.address.city || resp.data.address.town ||
-           resp.data.address.village || resp.data.address.state || null;
-  } catch (err) {
-    console.error("Geocode failed:", err.message);
-    return null;
-  }
-}
-
 // --- Endpoint ---
 app.get("/api/dashboard/summary", async (req, res) => {
   try {
@@ -238,7 +224,8 @@ app.get("/api/dashboard/summary", async (req, res) => {
       co2: r.co2,
       timestamp: r.timestamp,
       lat: r.lat,
-      lng: r.lng
+      lng: r.lng,
+      location: r.location || null
     }));
 
     // --- Current vs Last Month Same Day ---
@@ -275,11 +262,6 @@ app.get("/api/dashboard/summary", async (req, res) => {
     const criticalSpike = topSpikes[0] || null;
     const critical = criticalSpike ? criticalSpike.to : null;
 
-    let city = null;
-    if (critical && critical.lat && critical.lng) {
-      city = await reverseGeocode(critical.lat, critical.lng);
-    }
-
     res.json({
       current: {
         value: Number(todayAvg.toFixed(1)),
@@ -301,7 +283,7 @@ app.get("/api/dashboard/summary", async (req, res) => {
           spike: criticalSpike ? Number(criticalSpike.spike.toFixed(1)) : 0,
           lat: critical?.lat || null,
           lng: critical?.lng || null,
-          city
+          city: critical?.location || null
         }
       }
     });
@@ -310,7 +292,6 @@ app.get("/api/dashboard/summary", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch summary" });
   }
 });
-
 
 app.get("/api/dashboard/spikes", async (req, res) => {
   try {
@@ -389,7 +370,6 @@ app.get("/api/dashboard/spikes", async (req, res) => {
   }
 });
 
-
 app.get("/api/dashboard/location-data", async (req, res) => {
   try {
     const mode = req.query.mode || "current"; // current | avg | peak
@@ -398,16 +378,18 @@ app.get("/api/dashboard/location-data", async (req, res) => {
     const snapshot = await get(ref(db, "log-readings"));
     if (!snapshot.exists()) return res.status(404).json({ error: "No data" });
 
-    const allData = Object.values(snapshot.val()).filter(r => r.timestamp && r.lat && r.lng);
+    const allData = Object.values(snapshot.val()).filter(r => r.timestamp && r.lat && r.lng && r.location);
 
-    const groups = {}; // key: "lat,lng" => list of co2 values
+    const groups = {}; // key: location => list of co2 values
 
     for (const r of allData) {
-      const key = `${r.lat},${r.lng}`;
-      const t = dayjs(r.timestamp);
+      const key = r.location;
+      const t = dayjs(r.timestamp, "YYYY-MM-DD HH:mm:ss");
+
+      if (!t.isValid()) continue;
 
       if (mode === "current") {
-        if (t.isAfter(now.subtract(1, "hour"))) {
+        if (t.isAfter(now.subtract(5, "hour"))) {
           if (!groups[key]) groups[key] = [];
           groups[key].push(r.co2);
         }
@@ -424,36 +406,27 @@ app.get("/api/dashboard/location-data", async (req, res) => {
       }
     }
 
-    // Convert group data to array of objects with lat, lng, and value
-    let groupValues = Object.entries(groups).map(([key, values]) => {
-      const [lat, lng] = key.split(",");
+
+
+    let entries = Object.entries(groups).map(([location, values]) => {
       const co2Value = mode === "peak" ? Math.max(...values) : average(values);
-      return {
-        lat,
-        lng,
-        value: Math.round(co2Value)
-      };
+      return { location, value: Math.round(co2Value) };
     });
 
     // Sort and keep only top 5
-    groupValues = groupValues.sort((a, b) => b.value - a.value).slice(0, 5);
+    entries = entries.sort((a, b) => b.value - a.value).slice(0, 5);
 
-    // Map lat/lng to location names in parallel
-    const results = await Promise.all(groupValues.map(async (item) => {
-      const location = await reverseGeocode(item.lat, item.lng);
-      return {
-        location,
-        value: item.value
-      };
-    }));
+    const response = {
+      x: entries.map(e => e.location),
+      y: entries.map(e => e.value)
+    };
 
-    res.json(results);
+    res.json(response);
   } catch (err) {
-    console.error("/api/levels-by-location error:", err);
+    console.error("/api/dashboard/location-data error:", err);
     res.status(500).json({ error: "Failed to compute levels by location" });
   }
 });
-
 
 app.get("/api/dashboard/historical", async (req, res) => {
   try {
@@ -466,8 +439,7 @@ app.get("/api/dashboard/historical", async (req, res) => {
 
     const rawData = Object.values(snapshot.val()).filter(r => r.timestamp);
 
-    // Structure: { 'YYYY-MM': { year: 2024, month: '2024-01', values: [] } }
-    const monthlyGroups = {};
+    const monthlyGroups = {}; // { 'YYYY-MM': [co2, ...] }
 
     rawData.forEach(entry => {
       const time = dayjs(entry.timestamp);
@@ -479,20 +451,24 @@ app.get("/api/dashboard/historical", async (req, res) => {
       }
     });
 
-    // Build result grouped by year, each with months
-    const result = {};
-    Object.keys(monthlyGroups).forEach(key => {
-      const year = key.split("-")[0];
-      result[key] = average(monthlyGroups[key]);
-    });
+    const x = [];
+    const y = [];
 
-    res.json(result);
+    Object.keys(monthlyGroups)
+      .sort() // ensure chronological order
+      .forEach(key => {
+        x.push(key);
+        y.push(Math.round(average(monthlyGroups[key])));
+      });
+
+    res.json({ x, y });
 
   } catch (err) {
     console.error("❌ Historical trends error:", err);
     res.status(500).json({ error: "Failed to fetch historical trends" });
   }
 });
+
 
 
 app.post("/api/patch-all-readings", async (req, res) => {
@@ -508,26 +484,26 @@ app.post("/api/patch-all-readings", async (req, res) => {
     const keys = Object.keys(allReadings);
 
     const coordinates = [
-      { lng: "123.8854", lat: "10.3157" },
-      { lng: "123.9687", lat: "10.2970" },
-      { lng: "123.8426", lat: "10.3882" },
-      { lng: "123.6258", lat: "10.7760" },
-      { lng: "123.9944", lat: "10.2955" },
-      { lng: "123.9053", lat: "10.3280" },
-      { lng: "123.7844", lat: "9.6057" },
-      { lng: "123.5747", lat: "9.9843" },
-      { lng: "123.9645", lat: "10.2793" },
-      { lng: "123.8476", lat: "10.3431" },
-      { lng: "123.6256", lat: "11.2623" },
-      { lng: "123.9689", lat: "10.3353" },
-      { lng: "123.4500", lat: "10.0516" },
-      { lng: "123.9754", lat: "10.2942" },
-      { lng: "123.6102", lat: "10.3853" },
-      { lng: "123.9813", lat: "10.3526" },
-      { lng: "124.0300", lat: "10.6089" },
-      { lng: "123.5110", lat: "10.1321" },
-      { lng: "124.0347", lat: "11.0710" },
-      { lng: "123.9769", lat: "10.4021" },
+      { lng: "123.8854", lat: "10.3157", location: "Fuente Osmeña" },
+      { lng: "123.9687", lat: "10.2970", location: "Lapu-Lapu City" },
+      { lng: "123.8426", lat: "10.3882", location: "SM City Cebu" },
+      { lng: "123.6258", lat: "10.7760", location: "Bantayan Island" },
+      { lng: "123.9944", lat: "10.2955", location: "Magellan's Cross" },
+      { lng: "123.9053", lat: "10.3280", location: "Cebu Business Park" },
+      { lng: "123.7844", lat: "9.6057", location: "Oslob" },
+      { lng: "123.5747", lat: "9.9843", location: "Moalboal" },
+      { lng: "123.9645", lat: "10.2793", location: "MCIA" },
+      { lng: "123.8476", lat: "10.3431", location: "SM Seaside" },
+      { lng: "123.6256", lat: "11.2623", location: "Daanbantayan" },
+      { lng: "123.9689", lat: "10.3353", location: "Liloan" },
+      { lng: "123.4500", lat: "10.0516", location: "Badian" },
+      { lng: "123.9754", lat: "10.2942", location: "Fort San Pedro" },
+      { lng: "123.6102", lat: "10.3853", location: "Balamban" },
+      { lng: "123.9813", lat: "10.3526", location: "Consolacion" },
+      { lng: "124.0300", lat: "10.6089", location: "Danao City" },
+      { lng: "123.5110", lat: "10.1321", location: "Alegria" },
+      { lng: "124.0347", lat: "11.0710", location: "Bogo City" },
+      { lng: "123.9769", lat: "10.4021", location: "Compostela" },
     ];
 
     const batchSize = 1000;
@@ -541,6 +517,7 @@ app.post("/api/patch-all-readings", async (req, res) => {
         const random = coordinates[Math.floor(Math.random() * coordinates.length)];
         updates[`log-readings/${key}/lat`] = random.lat;
         updates[`log-readings/${key}/lng`] = random.lng;
+        updates[`log-readings/${key}/location`] = random.location;
       }
 
       await update(ref(db), updates);

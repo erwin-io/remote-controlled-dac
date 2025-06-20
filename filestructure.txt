@@ -1,4 +1,7 @@
 |-- .gitignore
+|-- .vercel
+    |-- project.json
+    |-- README.txt
 |-- api
     |-- .env
     |-- generate-mock.js
@@ -11,6 +14,7 @@
             |-- favicon.ico
             |-- logo.jpg
         |-- index.html
+        |-- placeholder.html
     |-- server.cert
     |-- server.key
     |-- vercel.json

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CO2 Monitoring Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .skeleton-wave {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: wave 1.5s linear infinite;
+        }
+        @keyframes wave {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <!-- CO2 Spikes Chart with Skeleton -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">CO2 Concentration Spikes</h2>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium">Day</button>
+                    <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">Week</button>
+                    <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">Month</button>
+                </div>
+            </div>
+            <div class="h-64 relative">
+                
+                <!-- Actual Chart (hidden by default) -->
+                <canvas id="spikesChart" class="hidden w-full h-full"></canvas>
+            </div>
+        </div>
+
+        <!-- Location Bar Chart with Skeleton -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">CO2 Levels by Location</h2>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium">Current</button>
+                    <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">Avg</button>
+                    <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">Peak</button>
+                </div>
+            </div>
+            <div class="h-64 relative">
+                <!-- Skeleton Loading State -->
+                <div id="locationSkeleton" class="w-full h-full">
+                    <div class="absolute inset-0 flex flex-col space-y-4 p-4">
+                        <!-- X-axis labels -->
+                        <div class="h-4 w-full flex justify-between items-end mt-auto">
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                        </div>
+                        <!-- Chart bars -->
+                        <div class="flex-1 flex items-end space-x-4">
+                            <div class="h-1/3 w-full skeleton-wave rounded-t"></div>
+                            <div class="h-1/2 w-full skeleton-wave rounded-t"></div>
+                            <div class="h-2/3 w-full skeleton-wave rounded-t"></div>
+                            <div class="h-3/4 w-full skeleton-wave rounded-t"></div>
+                            <div class="h-full w-full skeleton-wave rounded-t"></div>
+                            <div class="h-1/4 w-full skeleton-wave rounded-t"></div>
+                        </div>
+                        <!-- Y-axis labels -->
+                        <div class="h-4 w-full flex justify-between">
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actual Chart -->
+                <canvas id="locationChart" class="hidden w-full h-full"></canvas>
+            </div>
+        </div>
+
+        <!-- Historical Trend Chart with Skeleton -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover transition-all duration-300">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">Historical CO2 Trends</h2>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium">1 Year</button>
+                    <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">5 Years</button>
+                    <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">10 Years</button>
+                </div>
+            </div>
+            <div class="h-80 relative">
+                <!-- Skeleton Loading State -->
+                <div id="trendSkeleton" class="w-full h-full">
+                    <div class="absolute inset-0 flex flex-col space-y-4 p-4">
+                        <!-- X-axis labels -->
+                        <div class="h-4 w-full flex justify-between items-end mt-auto">
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                        </div>
+                        <!-- Chart lines -->
+                        <div class="flex-1 relative">
+                            <div class="absolute bottom-0 left-0 right-0 h-1/3 skeleton-wave rounded-full"></div>
+                            <div class="absolute bottom-0 left-0 right-0 h-2/3 skeleton-wave rounded-full"></div>
+                            <div class="absolute bottom-0 left-0 right-0 h-full skeleton-wave rounded-full"></div>
+                        </div>
+                        <!-- Y-axis labels -->
+                        <div class="h-4 w-full flex justify-between">
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                            <div class="h-3 w-12 skeleton-wave rounded"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Actual Chart -->
+                <canvas id="trendChart" class="hidden w-full h-full"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // This would be your actual API call simulation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate API loading delay (3 seconds)
+            setTimeout(function() {
+                // Hide skeletons
+                document.getElementById('spikesSkeleton').classList.add('hidden');
+                document.getElementById('locationSkeleton').classList.add('hidden');
+                document.getElementById('trendSkeleton').classList.add('hidden');
+                
+                // Show actual charts
+                document.getElementById('spikesChart').classList.remove('hidden');
+                document.getElementById('locationChart').classList.remove('hidden');
+                document.getElementById('trendChart').classList.remove('hidden');
+                
+                // Initialize your charts here with Chart.js
+                // (The actual chart initialization code would go here)
+                
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
