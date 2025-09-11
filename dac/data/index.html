@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DAC CO₂ Monitoring</title>
+  <link rel="stylesheet" href="style.css" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>DAC CO₂ Monitoring</h1>
+    <p class="subtitle">Ambient vs. Filtered (gauge & chart: 5-sec avg · table: 1-min avg)</p>
+  </header>
+
+  <main class="container">
+    <!-- Gauge -->
+    <section class="card gauge-card">
+      <h2 class="card-title">Latest 5-sec Improvement</h2>
+      <div id="gauge" class="gauge" aria-label="Improvement gauge" role="img">
+        <span id="gauge-label">--%</span>
+      </div>
+    </section>
+
+    <!-- Chart -->
+    <section class="card chart-card">
+      <h2 class="card-title">CO₂ (ppm) — last readings (5-sec avg)</h2>
+      <div class="chart-wrap">
+        <canvas id="ppm-chart"></canvas>
+        <div class="legend">
+          <span class="dot amb"></span><span>Ambient</span>
+          <span class="dot fil"></span><span>Filtered</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Logs (minute-averaged) -->
+    <section class="card log-card">
+      <h2 class="card-title">📜 1-minute Averages</h2>
+      <div class="table-wrap">
+        <table id="log-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Ambient</th>
+              <th>Filtered</th>
+              <th>Δ (ppm)</th>
+              <th>Improve (%)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating Export Button -->
+  <button class="fab" onclick="exportExcel()" title="Export logs (.xlsx)" aria-label="Export logs">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path d="M12 3v9.59l3.3-3.3 1.4 1.42L12 16.41l-4.7-4.7 1.4-1.42 3.3 3.3V3h2zM5 19h14v2H5z"/>
+    </svg>
+    <span class="fab-label">Export</span>
+  </button>
+
+  <script src="script.js"></script>
+</body>
+</html>
