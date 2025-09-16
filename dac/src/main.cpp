@@ -225,12 +225,17 @@ static void kickSCD(SCD4x& scd, const char* tag) {
 }
 
 // ===== Minimal positivity guard (local-only log nudge) =====
+// Turn OFF by default. Set to 1 if you want the old behavior back.
+#define FORCE_MIN_IMPROVEMENT 0
+#if FORCE_MIN_IMPROVEMENT
 static const float MIN_IMPROVEMENT_PCT = 0.5f; // enforce >= 0.5% improvement in logs
+#endif
 
 static inline bool isFiniteFloat(float x){
   return !(isnan(x) || isinf(x));
 }
 
+#if FORCE_MIN_IMPROVEMENT
 static void nudgeForPositiveImprovement(float &cAmb, float &cFil){
   if (!isFiniteFloat(cAmb) || !isFiniteFloat(cFil)) return;
   if (cAmb <= 0.0f || cFil <= 0.0f) return;
@@ -251,6 +256,7 @@ static void nudgeForPositiveImprovement(float &cAmb, float &cFil){
     }
   }
 }
+#endif
 
 // ===== Setup =====
 void setup(){
@@ -448,10 +454,14 @@ void loop(){
   if (haveNew && amb.valid && fil.valid) {
     const uint32_t e = nowEpoch();
     if (e != lastLoggedEpoch && e != 0) {
-      // take local copies & nudge them so improvement is small positive
+      // take local copies
       float a = amb.co2;
       float f = fil.co2;
-      nudgeForPositiveImprovement(a, f);
+
+      // (OLD behavior) force a minimum improvement — now disabled by default
+      #if FORCE_MIN_IMPROVEMENT
+        nudgeForPositiveImprovement(a, f);
+      #endif
 
       LogEntry le;
       le.epoch = e;
